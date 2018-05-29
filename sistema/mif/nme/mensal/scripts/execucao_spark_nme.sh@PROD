@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# kdestroy && kinit -k -t /produtos/bdr/keytab/mifhml.keytab -p mifhml
+
+source /sistema/mif/spark_params.sh
+
+echo "Execucao $SPARK_APPNAME"
+
+spark2-submit --master yarn-cluster --deploy-mode cluster --driver-memory $SPARK_DRIVERMER --num-executors $SPARK_EXECUTORS \
+			 --executor-cores $SPARK_CORES --executor-memory $SPARK_MEMORY \
+			 --conf spark.kryoserializer.buffer=1024 --conf spark.kryoserializer.buffer.max=2047 --conf spark.driver.maxResultSize=1548 \
+			 --conf spark.app.name=$SPARK_APPNAME \
+			 --conf spark.sql.shuffle.partitions=$SPARK_PARTITIONS \
+			 --conf spark.sql.autoBroadcastJoinThreshold=$SPARK_JOINTHRESHOLD \
+			 --conf spark.locality.wait=$SPARK_WAIT \
+			 --conf spark.speculation=$SPARK_SPECULATION \
+			 --conf spark.scheduler.mode=FAIR \
+			 --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
+			 --conf spark.executor.extraJavaOptions=" -XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=35 -XX:ConcGCThreads=6" \
+			 --conf spark.default.parallelism=$SPARK_PARALLELISM \
+			 --driver-java-options "-XX:MaxPermSize=512M -XX:+UseParNewGC -XX:-UseGCOverheadLimit" \
+			 --conf spark.yarn.executor.memoryOverhead=$SPARK_EXECUTOR_OVERHEAD \
+			 --conf spark.yarn.driver.memoryOverhead=$SPARK_DRIVER_OVERHEAD \
+			 --py-files /sistema/mif/nme/${2}/scripts/deserialize.py /sistema/mif/nme/${2}/scripts/${2}.py ${1} ${2}
