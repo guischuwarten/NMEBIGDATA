@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# kdestroy && kinit -k -t /produtos/bdr/keytab/mifhml.keytab -p mifhml
+kdestroy && kinit -k -t /produtos/bdr/keytab/mifprd.keytab -p mifprd
 
 source /sistema/mif/spark_params.sh
 
@@ -15,8 +15,9 @@ spark2-submit --master yarn-cluster --deploy-mode cluster --driver-memory $SPARK
 			 --conf spark.locality.wait=$SPARK_WAIT \
 			 --conf spark.speculation=$SPARK_SPECULATION \
 			 --conf spark.scheduler.mode=FAIR \
+			 --conf spark.memory.fraction=0.80 \
 			 --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
-			 --conf spark.executor.extraJavaOptions=" -XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=35 -XX:ConcGCThreads=6" \
+			 --conf spark.executor.extraJavaOptions=" -XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=35 -XX:ConcGCThreads=6 " \
 			 --conf spark.default.parallelism=$SPARK_PARALLELISM \
 			 --driver-java-options "-XX:MaxPermSize=512M -XX:+UseParNewGC -XX:-UseGCOverheadLimit" \
 			 --conf spark.yarn.executor.memoryOverhead=$SPARK_EXECUTOR_OVERHEAD \
